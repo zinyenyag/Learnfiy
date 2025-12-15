@@ -1,0 +1,6 @@
+@echo off
+echo Activating virtual environment...
+call .venv\Scripts\activate.bat
+echo Starting FastAPI Backend Server...
+python -m uvicorn main:app --reload --port 5050
+
