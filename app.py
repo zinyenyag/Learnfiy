@@ -51,33 +51,57 @@ except ImportError:
 
 # Simple AI call function
 def call_ai(prompt: str, subject: str = "Mathematics") -> str:
-    """Call AI with fallback"""
+    """Call Anthropic with sensible model fallback."""
     # Get API key from environment
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    
-    # Try Anthropic first
-    if ANTHROPIC_AVAILABLE and api_key and api_key != "sk-ant-PASTE_YOUR_KEY_HERE" and len(api_key) > 20:
+
+    # If Anthropic isn't available or no key, bail early
+    if not (ANTHROPIC_AVAILABLE and api_key and api_key != "sk-ant-PASTE_YOUR_KEY_HERE" and len(api_key) > 20):
+        return "AI service not available. Please check your Anthropic API key configuration."
+
+    client = Anthropic(api_key=api_key)
+    system_prompt = (
+        f"You are a helpful tutor for Forms 5-6 {subject} students in Zimbabwe. "
+        "Answer questions directly, clearly, and completely with full worked solutions."
+    )
+
+    # Try a list of models in order, skipping ones that aren't available for this key
+    models_to_try = [
+        "claude-3-sonnet-20240229",   # widely available
+        "claude-3-haiku-20240307",    # cheaper fallback
+    ]
+
+    last_error = None
+    for model_name in models_to_try:
         try:
-            client = Anthropic(api_key=api_key)
-            system_prompt = f"You are a helpful tutor for Forms 5-6 {subject} students in Zimbabwe. Answer questions directly, clearly, and completely."
-            
             msg = client.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model=model_name,
                 max_tokens=2000,
                 system=system_prompt,
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
             )
-            
+
             parts = []
             for block in msg.content:
                 if getattr(block, "type", None) == "text":
                     parts.append(block.text)
-            return "\n".join(parts).strip()
-        except Exception as e:
-            return f"Error calling Anthropic: {str(e)}"
-    
-    # Fallback message
-    return "AI service not available. Please check your API keys in the secrets configuration."
+
+            answer = "\n".join(parts).strip()
+            if answer:
+                return answer
+        except Exception as e:  # noqa: BLE001 - we want to capture any API error
+            last_error = str(e)
+            # Try next model in the list
+            continue
+
+    # If all models failed, show a friendly message with last error for debugging
+    if last_error:
+        return (
+            "⚠️ Sorry, I couldn't get a response from Anthropic right now.\n\n"
+            f"Last error from API: {last_error}"
+        )
+
+    return "AI service not available. Please try again later."
 
 # Main App
 def main():
