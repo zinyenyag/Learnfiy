@@ -18,7 +18,13 @@ st.set_page_config(
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    import os
+    # Try loading from backend/.env first, then root .env
+    backend_env = Path(__file__).parent / "backend" / ".env"
+    if backend_env.exists():
+        load_dotenv(backend_env)
+    else:
+        load_dotenv()  # Try root .env
 except:
     pass
 
