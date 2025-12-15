@@ -15,31 +15,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Load secrets and set environment variables
+# Load environment variables from .env file
 try:
-    # Set environment variables from Streamlit secrets
-    if "api_keys" in st.secrets:
-        if "ANTHROPIC_API_KEY" in st.secrets["api_keys"]:
-            anthropic_key = st.secrets["api_keys"]["ANTHROPIC_API_KEY"]
-            if anthropic_key and anthropic_key != "sk-ant-PASTE_YOUR_KEY_HERE":
-                os.environ["ANTHROPIC_API_KEY"] = anthropic_key
-        if "OPENAI_API_KEY" in st.secrets["api_keys"]:
-            openai_key = st.secrets["api_keys"].get("OPENAI_API_KEY", "")
-            if openai_key and openai_key != "your_openai_key_here":
-                os.environ["OPENAI_API_KEY"] = openai_key
-        if "GEMINI_API_KEY" in st.secrets["api_keys"]:
-            gemini_key = st.secrets["api_keys"].get("GEMINI_API_KEY", "")
-            if gemini_key and gemini_key != "your_gemini_key_here":
-                os.environ["GEMINI_API_KEY"] = gemini_key
-    
-    # Also load from dotenv as fallback
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-    except:
-        pass
-except Exception as e:
-    # If secrets not available, try to load from environment
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
     pass
 
 # Import AI functions
@@ -64,16 +44,8 @@ except ImportError:
 # Simple AI call function
 def call_ai(prompt: str, subject: str = "Mathematics") -> str:
     """Call AI with fallback"""
-    # Get API key from secrets or environment
-    api_key = ""
-    try:
-        if "api_keys" in st.secrets and "ANTHROPIC_API_KEY" in st.secrets["api_keys"]:
-            api_key = st.secrets["api_keys"]["ANTHROPIC_API_KEY"]
-    except:
-        pass
-    
-    if not api_key:
-        api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    # Get API key from environment
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
     
     # Try Anthropic first
     if ANTHROPIC_AVAILABLE and api_key and api_key != "sk-ant-PASTE_YOUR_KEY_HERE" and len(api_key) > 20:
@@ -115,48 +87,20 @@ def main():
         # Check API key status
         st.subheader("🔑 API Status")
         
-        # Check Anthropic key from secrets or environment
-        anthropic_key = ""
-        try:
-            if "api_keys" in st.secrets and "ANTHROPIC_API_KEY" in st.secrets["api_keys"]:
-                anthropic_key = st.secrets["api_keys"]["ANTHROPIC_API_KEY"]
-        except:
-            pass
-        
-        if not anthropic_key:
-            anthropic_key = os.getenv("ANTHROPIC_API_KEY", "")
-        
+        anthropic_key = os.getenv("ANTHROPIC_API_KEY", "")
         if anthropic_key and anthropic_key != "sk-ant-PASTE_YOUR_KEY_HERE" and len(anthropic_key) > 20:
             st.success("✅ Anthropic API Key: Active")
         else:
             st.error("❌ Anthropic API Key: Not configured")
-            st.info("💡 Add your API key in Streamlit Cloud → Settings → Secrets")
+            st.info("💡 Set ANTHROPIC_API_KEY in your .env file or environment variables")
         
-        openai_key = ""
-        try:
-            if "api_keys" in st.secrets and "OPENAI_API_KEY" in st.secrets["api_keys"]:
-                openai_key = st.secrets["api_keys"].get("OPENAI_API_KEY", "")
-        except:
-            pass
-        
-        if not openai_key:
-            openai_key = os.getenv("OPENAI_API_KEY", "")
-        
+        openai_key = os.getenv("OPENAI_API_KEY", "")
         if openai_key and openai_key != "your_openai_key_here" and len(openai_key) > 10:
             st.info("ℹ️ OpenAI API Key: Available")
         else:
             st.info("ℹ️ OpenAI API Key: Not set")
         
-        gemini_key = ""
-        try:
-            if "api_keys" in st.secrets and "GEMINI_API_KEY" in st.secrets["api_keys"]:
-                gemini_key = st.secrets["api_keys"].get("GEMINI_API_KEY", "")
-        except:
-            pass
-        
-        if not gemini_key:
-            gemini_key = os.getenv("GEMINI_API_KEY", "")
-        
+        gemini_key = os.getenv("GEMINI_API_KEY", "")
         if gemini_key and gemini_key != "your_gemini_key_here" and len(gemini_key) > 10:
             st.info("ℹ️ Gemini API Key: Available")
         else:
