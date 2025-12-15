@@ -24,6 +24,9 @@ try:
         load_dotenv(backend_env)
     else:
         load_dotenv()  # Try root .env
+    
+    # Also check if already set in environment (for Streamlit Cloud)
+    # This ensures it works both locally and on Streamlit Cloud
 except:
     pass
 
