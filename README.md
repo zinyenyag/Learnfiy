@@ -1,3 +1,5 @@
+AI LEARNING PLATFORM
+
 Learnfiy – AI Learning platform
 Syllabus-aligned digital learning support for Zimbabwe’s  A ‘Level Commercial learners
 
@@ -63,8 +65,11 @@ Technology Stack (typical implementation)
 
 About This Project
 Built for ISOM 839 (Prescriptive Analytics) at Suffolk University.
+
 Author: GILBERT ZINYENYA
+
 LinkedIn: www.linkedin.com/in/gilbert-zinyenya-263b9418b
+
 Email: gzinyenya@gmail.com
 
 Future Possibilities
